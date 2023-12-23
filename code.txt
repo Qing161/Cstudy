@@ -1,0 +1,202 @@
+#define _CRT_SECURE_NO_WARNINGS
+#pragma warning(disable:6031)
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+struct student {
+    long num;
+    char name[20];
+    float score;
+    struct student* next;
+};
+
+void insertStudent(struct student** head, long num, const char* name, float score) {
+    struct student* newStudent = (struct student*)malloc(sizeof(struct student));
+    newStudent->num = num;
+    strcpy(newStudent->name, name);
+    newStudent->score = score;
+    newStudent->next = *head;
+    *head = newStudent;
+}
+
+void printStudents(struct student* head) {
+    struct student* current = head;
+    while (current != NULL) {
+        printf("学号: %ld, 姓名: %s, 成绩: %.2f\n", current->num, current->name, current->score);
+        current = current->next;
+    }
+}
+
+void deleteStudentByNum(struct student** head, long num) {
+    struct student* current = *head;
+    struct student* prev = NULL;
+
+    while (current != NULL) {
+        if (current->num == num) {
+            if (prev == NULL) {
+                // 如果要删除的是头节点
+                *head = current->next;
+            }
+            else {
+                prev->next = current->next;
+            }
+            free(current);
+            return;
+        }
+        prev = current;
+        current = current->next;
+    }
+}
+
+void insertStudentAtPosition(struct student** head, long num, const char* name, float score, int position) {
+    struct student* newStudent = (struct student*)malloc(sizeof(struct student));
+    newStudent->num = num;
+    strcpy(newStudent->name, name);
+    newStudent->score = score;
+
+    if (position == 1) {
+        newStudent->next = *head;
+        *head = newStudent;
+    }
+    else {
+        struct student* current = *head;
+        int count = 1;
+        while (count < position - 1 && current != NULL) {
+            current = current->next;
+            count++;
+        }
+        if (current == NULL) {
+            printf("无法在指定位置插入学生信息\n");
+        }
+        else {
+            newStudent->next = current->next;
+            current->next = newStudent;
+        }
+    }
+}
+
+void updateStudentByNum(struct student* head, long num, const char* name, float score) {
+    struct student* current = head;
+    while (current != NULL) {
+        if (current->num == num) {
+            strcpy(current->name, name);
+            current->score = score;
+            break;
+        }
+        current = current->next;
+    }
+}
+
+void sortStudentsByScore(struct student* head) {
+    struct student* current, * nextStudent;
+    float tempScore;
+    char tempName[20];
+    long tempNum;
+
+    for (current = head; current != NULL; current = current->next) {
+        for (nextStudent = current->next; nextStudent != NULL; nextStudent = nextStudent->next) {
+            if (current->score > nextStudent->score) {
+                // 交换学生信息
+                tempScore = current->score;
+                current->score = nextStudent->score;
+                nextStudent->score = tempScore;
+
+                tempNum = current->num;
+                current->num = nextStudent->num;
+                nextStudent->num = tempNum;
+
+                strcpy(tempName, current->name);
+                strcpy(current->name, nextStudent->name);
+                strcpy(nextStudent->name, tempName);
+            }
+        }
+    }
+}
+
+int main() {
+    struct student* head = NULL;
+    printf("输入学生信息：");
+    long n,n1,n2,n3;
+    int num,num1,num2;
+    char name[11],name1[11],name2[11];
+    float score,score1,score2;
+    printf("\n学生个数：");
+    scanf("%d", &n);
+    n1 = 1;
+    while (n > 0)
+    {
+        printf("第%d位学生的学号：",n1);
+        scanf("%d", &num);
+        printf("第%d位学生的姓名：",n1);
+        scanf("%s", name);
+        printf("第%d位学生的成绩：",n1);
+        scanf("%f", &score);
+        insertStudent(&head, num, name, score);
+        n--;
+        n1++;
+    }
+    printf("\n");
+    printf("学生信息：\n");
+    printStudents(head);
+   int key=0;
+    
+   while (key != 5)
+   {
+       printf("\n\n");
+       printf("*****************菜单******************\n");
+       printf("1.修改数据\n2.插入数据\n3.删除数据\n4.按分数排序\n5.退出\n");
+       printf("***************************************\n");
+       printf("输入操作：");
+       scanf("%1d", &key);
+       if (key == 1)
+       {
+           printf("要修改的学生的学号：");
+           scanf("%d", &num1);
+           printf("修改姓名：");
+           scanf("%s", name1);
+           printf("修改成绩：");
+           scanf("%f", &score1);
+           updateStudentByNum(head, num1, name1, score1);
+       }
+       else if (key == 2)
+       {
+           printf("在第几个位置插入？");
+           scanf("%d", &n2);
+           printf("添加学号：");
+           scanf("%d", &num2);
+           printf("添加插入姓名：");
+           scanf("%s", name2);
+           printf("添加成绩：");
+           scanf("%f", &score2);
+           insertStudentAtPosition(&head, num2, name2, score2, n2);
+       }
+       else if (key == 3)
+       {
+           printf("删除的学生的学号");
+           scanf("%d", &n3);
+           deleteStudentByNum(&head, n3);
+       }
+
+       else if (key == 4)
+       {
+           sortStudentsByScore(head);
+           printf("按照分数排序后的学生信息：\n");
+       }
+
+       if (key != 5)
+       {
+           printf("\n操作后：\n");
+           printStudents(head);
+       }
+       
+   }
+
+   struct student* current = head;
+   while (current != NULL) {
+        struct student* temp = current;
+        current = current->next;
+        free(temp);
+   }
+    return 0;
+}
